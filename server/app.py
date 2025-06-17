@@ -39,7 +39,28 @@ def students_id(id):
     
     student = Student.query.filter(Student.id==id).first()
 
-    return student.to_dict(), 200
+    return student.to_dict(), 
+
+@app.route('/students')
+def create_students():
+    data = request.get_json()
+
+    name = data.get('name')
+    email = data.get('email')
+
+    if not name or not email:
+        return {"error": "Name and email are required."}, 400
+
+    if Student.query.filter_by(email=email).first():
+        return {"error": "Email already exists."}, 409
+
+    new_student = Student(name=name, email=email)
+    db.session.add(new_student)
+    db.session.commit()
+
+    return new_student.to_dict(), 201
+
+
 
 
 # MISSING MODULE psycopg2
